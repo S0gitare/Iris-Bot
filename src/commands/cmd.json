@@ -1,6 +1,7 @@
 {
   "Comandos": {
     "!help": "Exibe um Menu de Comandos",
-    "!sticker": "Cria Figurinhas Estáticas"
+    "!sticker": "Cria Figurinhas Estáticas",
+    "!bot": "Responde Perguntas"
   }
 }
