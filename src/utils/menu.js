@@ -7,6 +7,6 @@ Exibe este menu de ajuda.
 Transforma fotos e vídeos em figurinhas.
 
 ➤ !bot
-Conversa com o bot.`.trim();
+Conversa com o bot. `.trim();
 
 module.exports = menu;
