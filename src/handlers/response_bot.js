@@ -2,8 +2,6 @@ const { generateResponse } = require("../handlers/bot");
 
 module.exports = function (client) {
   client.on("message_create", async (msg) => {
-    console.log("Mensagem Recebida!");
-
     if (msg.body.startsWith("!bot")) {
       const prompt = msg.body.slice(4).trim();
       msg.reply("Processando Resposta... ⏳");
