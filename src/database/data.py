@@ -9,8 +9,8 @@ def Database_init(db_file):
 
         cursor.execute(
             """CREATE TABLE IF NOT EXISTS stickers (
-                command TEXT PRIMARY KEY,
-                data TEXT NOT NULL)"""
+                Number TEXT,
+                Date TEXT)"""
         )
         return connection, cursor
 
@@ -29,5 +29,18 @@ if __name__ == "__main__":
             number = sys.argv[2]
             date = sys.argv[3]
 
-            cursor.execute("INSERT OR REPLACE INTO stickers (command, data) VALUES (?, ?)", (number, date))
+            cursor.execute(
+                "INSERT OR REPLACE INTO stickers (Number, Date) VALUES (?, ?)",
+                (number, date),
+            )
             connection.commit()
+        elif acao == "read":
+            cursor.execute("SELECT * FROM stickers")
+            rows = cursor.fetchall()
+            for row in rows:
+                print(f"Number: {row[0]}, Date: {row[1]}")
+
+    except IndexError:
+        print("erro: argumentos insuficientes")
+    finally:
+        connection.close()

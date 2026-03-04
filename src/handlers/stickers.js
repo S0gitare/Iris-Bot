@@ -8,16 +8,17 @@ module.exports = function (client) {
       msg.reply("Processando Figurinha... ⏳");
       const media = await msg.downloadMedia();
 
-      const id_sticker = msg.id.id;
-      const data_base64 = media.data;
+      const number = msg.from;
+      const date = new Date().toLocaleDateString("pt-br");
 
-      const command = `python src/database/data.py salvar "${id_sticker}" "${data_base64}"`;
-      exec(command, (error, stdout, stderr) => {
+      const command = `python src/database/data.py add "${number}" "${date}"`;
+
+      exec(command, (error, srtdout, stderr) => {
         if (error) {
-          console.error(`Erro ao executar o comando: ${error.message}`);
+          console.error(`Erro ao executar o comando: ${error}`);
           return;
         }
-        console.log("figurinha salva");
+        console.log(srtdout);
       });
 
       await client.sendMessage(msg.from, media, {
