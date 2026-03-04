@@ -34,11 +34,6 @@ if __name__ == "__main__":
                 (number, date),
             )
             connection.commit()
-        elif acao == "read":
-            cursor.execute("SELECT * FROM stickers")
-            rows = cursor.fetchall()
-            for row in rows:
-                print(f"Number: {row[0]}, Date: {row[1]}")
 
     except IndexError:
         print("erro: argumentos insuficientes")
