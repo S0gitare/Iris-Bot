@@ -1,27 +1,28 @@
-const { exec } = require("child_process");
+const { addStickerRecord } = require("../database/db");
 
 module.exports = function (client) {
   client.on("message_create", async (msg) => {
+    // Verifica se a mensagem tem mídia e o corpo é '!sticker'
     if (msg.hasMedia && msg.body === "!sticker") {
-      msg.reply("Processando Figurinha... ⏳");
-      const media = await msg.downloadMedia();
+      try {
+        msg.reply("Processando Figurinha... ⏳");
 
-      const number = msg.from;
-      const date = new Date().toLocaleDateString("pt-br");
+        const media = await msg.downloadMedia();
+        const number = msg.from;
+        const date = new Date().toLocaleDateString("pt-br");
 
-      const command = `python src/database/data.py add "${number}" "${date}"`;
+        // Adiciona registro ao banco de dados usando Node.js
+        await addStickerRecord(number, date);
 
-      exec(command, (error, srtdout, stderr) => {
-        if (error) {
-          console.error(`Erro ao executar o comando: ${error}`);
-          return;
-        }
-        console.log(srtdout);
-      });
+        // Envia a mídia como figurinha
+        await client.sendMessage(msg.from, media, {
+          sendMediaAsSticker: true,
+        });
 
-      await client.sendMessage(msg.from, media, {
-        sendMediaAsSticker: true,
-      });
+      } catch (error) {
+        console.error("Erro ao gerar figurinha:", error);
+        msg.reply("Desculpe, ocorreu um erro ao gerar sua figurinha.");
+      }
     }
   });
 };

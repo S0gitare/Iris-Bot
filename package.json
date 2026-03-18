@@ -4,6 +4,7 @@
   "description": "íris bot",
   "main": "src/core/main.js",
   "scripts": {
+    "start": "node src/core/main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
