@@ -64,7 +64,7 @@
 This bot is created for educational purposes only. This is NOT an official WhatsApp bot. Using this bot may lead to your WhatsApp account being banned. Use it at your own risk. No one will be responsible for any consequences or account bans that may occur while using this bot.
 
 ---
-
+ 
 ## 📄 License
 
 This project is licensed under the MIT License.
