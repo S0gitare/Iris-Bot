@@ -1,27 +1,46 @@
-const { generateResponse } = require("../handlers/bot");
+const { generateResponse } = require('./bot');
+const { isRateLimited } = require('../utils/rateLimiter');
+const { clearHistory } = require('../utils/conversationHistory');
+const config = require('../config');
+const logger = require('../utils/logger');
 
-module.exports = function (client) {
-  client.on("message_create", async (msg) => {
-    // Processa apenas mensagens que começam com '!bot'
-    if (msg.body.startsWith("!bot")) {
-      try {
-        const prompt = msg.body.slice(4).trim();
+async function responseBotHandler(msg, client) {
+  const cmdPrefix = `${config.prefix}bot`;
+  const prompt = msg.body.slice(cmdPrefix.length).trim();
 
-        if (!prompt) {
-          msg.reply("Por favor, forneça uma pergunta ou comando após o !bot.");
-          return;
-        }
+  if (prompt.toLowerCase() === 'reset') {
+    clearHistory(msg.from);
+    await msg.reply('Histórico de conversa limpo! ✅').catch(() => {});
+    return;
+  }
 
-        const thinkingMsg = await msg.reply("Processando Resposta... ⏳");
-        const response = await generateResponse(prompt);
+  if (isRateLimited(msg.from)) {
+    await msg.reply('Você está enviando mensagens muito rápido. Aguarde um momento.').catch(() => {});
+    return;
+  }
 
-        // Envia a resposta final
-        await msg.reply(response);
+  if (!prompt && !msg.hasMedia) {
+    await msg.reply(`Por favor, forneça uma pergunta após ${cmdPrefix}.`).catch(() => {});
+    return;
+  }
 
-      } catch (error) {
-        console.error("Erro no response_bot:", error);
-        msg.reply("Ocorreu um erro ao processar sua solicitação ao bot.");
-      }
+  try {
+    const thinkingMsg = await msg.reply('Processando Resposta... ⏳');
+
+    let imageData = null;
+    if (msg.hasMedia) {
+      const media = await msg.downloadMedia();
+      imageData = { mimetype: media.mimetype, data: media.data };
     }
-  });
-};
+
+    const response = await generateResponse(prompt, msg.from, imageData);
+    await msg.reply(response);
+
+    try { await thinkingMsg.delete(true); } catch (_) {}
+  } catch (error) {
+    logger.error({ err: error }, 'Erro no response_bot');
+    await msg.reply('Ocorreu um erro ao processar sua solicitação.').catch(() => {});
+  }
+}
+
+module.exports = responseBotHandler;

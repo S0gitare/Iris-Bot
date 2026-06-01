@@ -1,28 +1,20 @@
-const { addStickerRecord } = require("../database/db");
+const { isRateLimited } = require('../utils/rateLimiter');
+const logger = require('../utils/logger');
 
-module.exports = function (client) {
-  client.on("message_create", async (msg) => {
-    // Verifica se a mensagem tem mídia e o corpo é '!sticker'
-    if (msg.hasMedia && msg.body === "!sticker") {
-      try {
-        msg.reply("Processando Figurinha... ⏳");
+async function stickersHandler(msg, client) {
+  if (isRateLimited(msg.from)) {
+    await msg.reply('Você está enviando mensagens muito rápido. Aguarde um momento.').catch(() => {});
+    return;
+  }
 
-        const media = await msg.downloadMedia();
-        const number = msg.from;
-        const date = new Date().toLocaleDateString("pt-br");
+  try {
+    await msg.reply('Processando Figurinha... ⏳').catch(() => {});
+    const media = await msg.downloadMedia();
+    await client.sendMessage(msg.from, media, { sendMediaAsSticker: true });
+  } catch (error) {
+    logger.error({ err: error }, 'Erro ao gerar figurinha');
+    await msg.reply('Desculpe, ocorreu um erro ao gerar sua figurinha.').catch(() => {});
+  }
+}
 
-        // Adiciona registro ao banco de dados usando Node.js
-        await addStickerRecord(number, date);
-
-        // Envia a mídia como figurinha
-        await client.sendMessage(msg.from, media, {
-          sendMediaAsSticker: true,
-        });
-
-      } catch (error) {
-        console.error("Erro ao gerar figurinha:", error);
-        msg.reply("Desculpe, ocorreu um erro ao gerar sua figurinha.");
-      }
-    }
-  });
-};
+module.exports = stickersHandler;

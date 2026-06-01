@@ -1,44 +1,36 @@
-const { Client, LocalAuth } = require("whatsapp-web.js");
-const qrcode = require("qrcode-terminal");
-const setupHandlerHelp = require("../handlers/help");
-const setupHandleSticker = require("../handlers/stickers");
-const setupHandleResponseBot = require("../handlers/response_bot");
+require('dotenv').config();
+const { Client, LocalAuth } = require('whatsapp-web.js');
+const qrcode = require('qrcode-terminal');
+const logger = require('../utils/logger');
+const registry = require('./commandRegistry');
 
-// Configuração do cliente com estratégia de autenticação local
+const helpHandler = require('../handlers/help');
+const stickersHandler = require('../handlers/stickers');
+const responseBotHandler = require('../handlers/response_bot');
+
 const client = new Client({
   authStrategy: new LocalAuth(),
   puppeteer: {
-    args: ["--no-sandbox"],
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    ...(process.env.PUPPETEER_EXECUTABLE_PATH && {
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
+    }),
   },
 });
 
-// Evento para gerar QR Code
-client.on("qr", (qr) => {
-  console.log("Escaneie o QR Code abaixo para conectar:");
+registry.register('help', helpHandler);
+registry.register('sticker', stickersHandler, { mediaRequired: true });
+registry.register('bot', responseBotHandler, { startsWith: true });
+
+client.on('qr', (qr) => {
+  logger.info('Escaneie o QR Code para conectar:');
   qrcode.generate(qr, { small: true });
 });
 
-// Evento quando o bot estiver online
-client.on("ready", () => {
-  console.log("Bot online e pronto para uso!");
-});
+client.on('ready', () => logger.info('Bot online e pronto para uso!'));
+client.on('auth_failure', (msg) => logger.error({ msg }, 'Falha na autenticação'));
+client.on('disconnected', (reason) => logger.warn({ reason }, 'Cliente desconectado'));
 
-// Evento de erro de autenticação
-client.on("auth_failure", (msg) => {
-  console.error("Falha na autenticação:", msg);
-});
+registry.setup(client);
 
-// Evento de desconexão
-client.on("disconnected", (reason) => {
-  console.log("Cliente desconectado:", reason);
-});
-
-// Configuração dos handlers
-setupHandlerHelp(client);
-setupHandleSticker(client);
-setupHandleResponseBot(client);
-
-// Inicialização do cliente com tratamento de erros
-client.initialize().catch((err) => {
-  console.error("Erro ao inicializar o cliente:", err);
-});
+client.initialize().catch((err) => logger.error({ err }, 'Erro ao inicializar o cliente'));

@@ -1,0 +1,11 @@
+services:
+  iris-bot:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - session:/app/.wwebjs_auth
+    tty: true
+
+volumes:
+  session:

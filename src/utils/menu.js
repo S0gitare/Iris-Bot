@@ -1,12 +1,19 @@
-const menu = `⚙️ - Menu 
+const config = require('../config');
 
-➤ !help
+const p = config.prefix;
+
+const menu = `⚙️ - Menu ${config.botName}
+
+➤ ${p}help
 Exibe este menu de ajuda.
 
-➤ !sticker
+➤ ${p}sticker
 Transforma fotos e vídeos em figurinhas.
 
-➤ !bot
-Conversa com o bot. `.trim();
+➤ ${p}bot <pergunta>
+Conversa com a IA. Suporta imagens e mantém contexto da conversa.
+
+➤ ${p}bot reset
+Limpa o histórico da conversa.`.trim();
 
 module.exports = menu;

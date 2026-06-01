@@ -5,7 +5,7 @@
   "main": "src/core/main.js",
   "scripts": {
     "start": "node src/core/main.js",
-    "test": "echo \"Error: no test specified\" && exit 1" 
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
@@ -13,8 +13,8 @@
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "dotenv": "^17.3.1",
+    "pino": "^9.0.0",
     "qrcode-terminal": "^0.12.0",
-    "sqlite3": "^5.1.7",
     "whatsapp-web.js": "^1.34.6"
   }
 }
