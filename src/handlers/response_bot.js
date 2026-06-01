@@ -1,5 +1,5 @@
 const { generateResponse } = require('./bot');
-const { isRateLimited } = require('../utils/rateLimiter');
+const { isRateLimited, RATE_LIMIT_MSG } = require('../utils/rateLimiter');
 const { clearHistory } = require('../utils/conversationHistory');
 const config = require('../config');
 const logger = require('../utils/logger');
@@ -8,14 +8,14 @@ async function responseBotHandler(msg, client) {
   const cmdPrefix = `${config.prefix}bot`;
   const prompt = msg.body.slice(cmdPrefix.length).trim();
 
-  if (prompt.toLowerCase() === 'reset') {
-    clearHistory(msg.from);
-    await msg.reply('Histórico de conversa limpo! ✅').catch(() => {});
+  if (isRateLimited(msg.from)) {
+    await msg.reply(RATE_LIMIT_MSG).catch(() => {});
     return;
   }
 
-  if (isRateLimited(msg.from)) {
-    await msg.reply('Você está enviando mensagens muito rápido. Aguarde um momento.').catch(() => {});
+  if (prompt.toLowerCase() === 'reset') {
+    clearHistory(msg.from);
+    await msg.reply('Histórico de conversa limpo! ✅').catch(() => {});
     return;
   }
 
@@ -25,7 +25,7 @@ async function responseBotHandler(msg, client) {
   }
 
   try {
-    const thinkingMsg = await msg.reply('Processando Resposta... ⏳');
+    const thinkingMsg = await msg.reply('Processando Resposta... ⏳').catch(() => null);
 
     let imageData = null;
     if (msg.hasMedia) {
@@ -36,7 +36,7 @@ async function responseBotHandler(msg, client) {
     const response = await generateResponse(prompt, msg.from, imageData);
     await msg.reply(response);
 
-    try { await thinkingMsg.delete(true); } catch (_) {}
+    try { if (thinkingMsg) await thinkingMsg.delete(true); } catch (_) {}
   } catch (error) {
     logger.error({ err: error }, 'Erro no response_bot');
     await msg.reply('Ocorreu um erro ao processar sua solicitação.').catch(() => {});

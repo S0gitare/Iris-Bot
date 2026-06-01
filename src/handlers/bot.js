@@ -1,7 +1,11 @@
-require('dotenv').config();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { getHistory, addToHistory } = require('../utils/conversationHistory');
 const logger = require('../utils/logger');
+
+if (!process.env.GEMINI_API) {
+  logger.error('GEMINI_API não está definida. Configure a variável de ambiente antes de iniciar.');
+  process.exit(1);
+}
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API);
 

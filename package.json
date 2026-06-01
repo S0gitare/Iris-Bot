@@ -1,7 +1,7 @@
 {
-  "name": "bot-whatsapp",
+  "name": "iris-bot",
   "version": "1.0.0",
-  "description": "íris bot",
+  "description": "Smart WhatsApp assistant powered by Google Gemini",
   "main": "src/core/main.js",
   "scripts": {
     "start": "node src/core/main.js",
@@ -9,7 +9,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "dotenv": "^17.3.1",

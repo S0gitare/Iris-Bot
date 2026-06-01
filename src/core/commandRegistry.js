@@ -12,6 +12,7 @@ class CommandRegistry {
 
   setup(client) {
     client.on('message_create', async (msg) => {
+      if (msg.fromMe) return;
       for (const { name, handler, startsWith, mediaRequired } of this.commands) {
         const fullCmd = `${config.prefix}${name}`;
         const matches = startsWith ? msg.body.startsWith(fullCmd) : msg.body === fullCmd;
