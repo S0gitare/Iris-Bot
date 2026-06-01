@@ -1,6 +1,5 @@
 require('dotenv').config();
 const { Client, LocalAuth } = require('whatsapp-web.js');
-const qrcode = require('qrcode-terminal');
 const logger = require('../utils/logger');
 const registry = require('./commandRegistry');
 
@@ -23,8 +22,9 @@ registry.register('sticker', stickersHandler, { mediaRequired: true });
 registry.register('bot', responseBotHandler, { startsWith: true });
 
 client.on('qr', (qr) => {
-  logger.info('Escaneie o QR Code para conectar:');
-  qrcode.generate(qr, { small: true });
+  const url = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(qr)}`;
+  console.log('\n📱 Abra essa URL no navegador para escanear o QR Code:');
+  console.log(url + '\n');
 });
 
 client.on('ready', () => logger.info('Bot online e pronto para uso!'));

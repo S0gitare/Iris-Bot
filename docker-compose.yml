@@ -1,6 +1,7 @@
 services:
   iris-bot:
     build: .
+    image: iris-bot:1.0.0
     restart: unless-stopped
     env_file: .env
     volumes:
